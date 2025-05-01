@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Issue - EcoTrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #00dc82;
+            --secondary-color: #0ea5e9;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-light: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #7c3aed;
+        
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 220, 130, 0.2);
+        }
+
+        .report-container {
+            max-width: 800px;
+            margin: 120px auto 40px;
+            padding: 2rem;
+        }
+
+        .report-form {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 16px;
+        }
+
+        .form-title {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--surface-light);
+            border: none;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        .form-select option {
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .image-upload {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            background: var(--surface-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+
+        .location-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 220, 130, 0.2);
+        }
+
+        .menu-toggle {
+            display: none; /* Hide by default on desktop */
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: var(--surface);
+                flex-direction: column;
+                align-items: center;
+                padding: 1rem 0;
+                gap: 1rem;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                z-index: 999;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .menu-toggle {
+                display: block; /* Only show on mobile */
+            }
+            
+            .location-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Additional styles for file upload and notifications */
+        .file-upload-label {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--surface-light);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .submit-button .material-icons {
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
+
+        .submit-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .material-icons.spinning {
+            animation: spin 1s linear infinite;
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .container, .nav, .form-container {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="index.html" class="logo">
+                <span class="material-icons-round">eco</span>
+                EcoTrack
+            </a>
+            <button class="menu-toggle">
+                <span class="material-icons-round">menu</span>
+            </button>
+            <div class="nav-links">
+                <a href="INFO.HTML" class="nav-link">Info</a>
+                <a href="regards.html" class="nav-link">Regards</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+                <a href="form.html" class="cta-button">Report</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="report-container">
+        <div class="report-form">
+            <h1 class="form-title">Report a Waste Management Issue</h1>
+            <form id="reportForm">
+                <div class="form-group">
+                    <label class="form-label" for="issueType">Type of Issue</label>
+                    <select id="issueType" class="form-select" required>
+                        <option value="">Select an issue type</option>
+                        <option value="illegal_dumping">Illegal Dumping</option>
+                        <option value="overflow">Bin Overflow</option>
+                        <option value="damaged_bin">Damaged Bin</option>
+                        <option value="missed_collection">Missed Collection</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="location-group">
+                    <div class="form-group">
+                        <label class="form-label" for="street">Street Address</label>
+                        <input type="text" id="street" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="city">City</label>
+                        <input type="text" id="city" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="description">Description</label>
+                    <textarea id="description" class="form-textarea" placeholder="Please provide details about the issue..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Upload Image</label>
+                    <div class="image-upload">
+                        <input type="file" id="image" accept="image/*">
+                        <label for="image" class="file-upload-label">Upload Image</label>
+                    </div>
+                </div>
+
+                <div class="form-group"></div>
+                    <label class="form-label" for="contact">Contact Number (Optional)</label>
+                    <input type="tel" id="contact" class="form-input">
+                </div>
+
+                <button type="submit" class="submit-button">
+                    <span class="material-icons">send</span> Submit Report
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Auth check redirect script -->
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDl4a05369lB7N_yWaHzWGjuYy7ht2ja-g",
+            authDomain: "wmss-cfdfd.firebaseapp.com",
+            projectId: "wmss-cfdfd",
+            storageBucket: "wmss-cfdfd.firebasestorage.app",
+            messagingSenderId: "464847169973",
+            appId: "1:464847169973:web:78263220d8661b8f8111fc",
+            measurementId: "G-6W41LQS4KD"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Mobile menu toggle
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        // Check authentication state
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                // Redirect to login if not authenticated
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Function to upload to GoFiles
+        async function uploadToGoFiles(file) {
+            try {
+                // Validate file input
+                if (!file) {
+                    throw new Error('No file provided for upload');
+                }
+
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    throw new Error('Only image files are allowed');
+                }
+
+                // Create form data for upload
+                const formData = new FormData();
+                formData.append('file', file);
+
+                // Upload directly to GoFile
+                const uploadResponse = await fetch('https://upload.gofile.io/uploadFile', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!uploadResponse.ok) {
+                    throw new Error(`HTTP error! status: ${uploadResponse.status}`);
+                }
+                
+                const uploadResult = await uploadResponse.json();
+                if (uploadResult.status !== 'ok' || !uploadResult.data?.downloadPage) {
+                    throw new Error(uploadResult.message || 'Failed to upload to GoFiles');
+                }
+
+                // Return the download page URL
+                return uploadResult.data.downloadPage;
+            } catch (error) {
+                console.error('Error uploading to GoFiles:', error);
+                showNotification('Image upload failed: ' + error.message, 'error');
+                throw error;
+            }
+        }
+
+        // Function to get GoFile direct URL
+        async function getGoFileDirectUrl(downloadPageUrl) {
+            try {
+                // 1. URL Validation
+                const contentId = downloadPageUrl.split('/').pop();
+                if (!contentId) {
+                    throw new Error('Invalid GoFile URL');
+                }
+
+                // 2. Token Request Error Handling
+                const tokenResponse = await fetch('https://api.gofile.io/createAccount', {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                const tokenData = await tokenResponse.json();
+                
+                if (tokenData.status !== 'ok' || !tokenData.data.token) {
+                    throw new Error('Failed to get GoFile access token');
+                }
+
+                // 3. Content Request Error Handling
+                const response = await fetch(`https://api.gofile.io/getContent?contentId=${contentId}&token=${tokenData.data.token}`);
+                const result = await response.json();
+
+                // 4. Response Validation
+                if (result.status === 'ok' && result.data && result.data.contents) {
+                    const fileKey = Object.keys(result.data.contents)[0];
+                    return result.data.contents[fileKey].directLink || result.data.contents[fileKey].link;
+                }
+                
+                throw new Error('Unable to get direct URL from GoFile');
+
+            } catch (error) {
+                console.error('Error getting GoFile direct URL:', error);
+                throw error; // Re-throw to be handled by the caller
+            }
+        }
+
+        // Show selected image name
+        document.getElementById('image').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if (fileName) {
+                document.querySelector('.file-upload-label').textContent = fileName;
+            }
+        });
+
+        // Handle form submission with improved error handling
+        document.getElementById('reportForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submitButton = document.querySelector('.submit-button');
+            
+            try {
+                // Disable button and show loading state
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="material-icons spinning">hourglass_empty</span> Submitting...';
+
+                // Authentication check
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    throw new Error('User not authenticated');
+                }
+
+                // Form data collection
+                const street = document.getElementById('street').value;
+                const city = document.getElementById('city').value;
+                const description = document.getElementById('description').value;
+                const issueType = document.getElementById('issueType').value;
+                const contact = document.getElementById('contact').value;
+                const imageFile = document.getElementById('image').files[0];
+
+                // Image handling
+                let imageUrl = null;
+                if (imageFile) {
+                    try {
+                        showNotification('Uploading image...', 'info');
+                        imageUrl = await uploadToGoFiles(imageFile);
+                    } catch (error) {
+                        showNotification('Image upload failed: ' + error.message, 'error');
+                        return;
+                    }
+                }
+
+                // Save report to Firestore
+                await db.collection('reports').add({
+                    userId: user.uid,
+                    street,
+                    city,
+                    description,
+                    issueType,
+                    contact,
+                    imageUrl,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Show success notification
+                showNotification('Report submitted successfully!', 'success');
+
+                // Reset form
+                document.getElementById('reportForm').reset();
+                document.querySelector('.file-upload-label').textContent = 'Upload Image';
+            } catch (error) {
+                console.error('Error submitting report:', error);
+                showNotification('Failed to submit report: ' + error.message, 'error');
+            } finally {
+                // Re-enable button and reset text
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<span class="material-icons">send</span> Submit Report';
+            }
+        });
+
+        // Enhanced notification function with animations
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.padding = '1rem 2rem';
+            notification.style.borderRadius = '8px';
+            notification.style.color = 'white';
+            notification.style.zIndex = '2000';
+            notification.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            notification.style.transform = 'translateY(-100%)';
+            notification.style.opacity = '0';
+            notification.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+            
+            // Color coding based on error type
+            if (type === 'success') {
+                notification.style.backgroundColor = '#10b981';
+            } else if (type === 'error') {
+                notification.style.backgroundColor = '#ef4444';
+            } else {
+                notification.style.backgroundColor = '#3b82f6';
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Trigger animation
+            setTimeout(() => {
+                notification.style.transform = 'translateY(0)';
+                notification.style.opacity = '1';
+            }, 10);
+            
+            // Auto-remove notification
+            setTimeout(() => {
+                notification.style.transform = 'translateY(-100%)';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

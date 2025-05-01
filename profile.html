@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - EcoTrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #00dc82;
+            --secondary-color: #0ea5e9;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-light: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #7c3aed;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 220, 130, 0.2);
+        }
+
+        .profile-container {
+            max-width: 800px;
+            margin: 120px auto 40px;
+            padding: 2rem;
+        }
+
+        .profile-content {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.5rem;
+            font-size: 2.5rem;
+            color: var(--text-primary);
+        }
+
+        .profile-title {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-email {
+            color: var(--text-secondary);
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--surface-light);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+        }
+
+        .profile-actions {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .primary-action {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-primary);
+        }
+
+        .secondary-action {
+            background: var(--surface-light);
+            color: var(--text-primary);
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--background);
+            border: 1px solid var(--surface-light);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .success-message {
+            background: rgba(0, 220, 130, 0.1);
+            color: var(--primary-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .menu-toggle {
+            display: none; /* Hide by default on desktop */
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .container, .nav, .profile-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: var(--surface);
+                flex-direction: column;
+                align-items: center;
+                padding: 1rem 0;
+                gap: 1rem;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                z-index: 999;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .menu-toggle {
+                display: block; /* Only show on mobile */
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-avatar {
+                margin: 0 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="index.html" class="logo">
+                <span class="material-icons-round">eco</span>
+                EcoTrack
+            </a>
+            <button class="menu-toggle">
+                <span class="material-icons-round">menu</span>
+            </button>
+            <div class="nav-links">
+                <a href="INFO.HTML" class="nav-link">Info</a>
+                <a href="regards.html" class="nav-link">Regards</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="profile.html" class="nav-link active">Profile</a>
+                <a href="form.html" class="cta-button">Report</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="profile-container">
+        <div class="profile-content">
+            <div class="success-message" id="successMessage"></div>
+            <div class="error-message" id="errorMessage"></div>
+            
+            <div id="profileView">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="avatar"></div>
+                    <div>
+                        <h1 class="profile-title" id="displayName">Loading...</h1>
+                        <p class="profile-email" id="email">Loading...</p>
+                        <p class="profile-email" id="memberSince"></p>
+                    </div>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="reportsCount">0</div>
+                        <div class="stat-label">Reports Submitted</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="resolvedCount">0</div>
+                        <div class="stat-label">Issues Resolved</div>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button id="editProfileBtn" class="action-button primary-action">
+                        <span class="material-icons-round">edit</span>
+                        Edit Profile
+                    </button>
+                    <button id="changePasswordBtn" class="action-button secondary-action">
+                        <span class="material-icons-round">lock</span>
+                        Change Password
+                    </button>
+                    <button id="logoutBtn" class="action-button secondary-action">
+                        <span class="material-icons-round">logout</span>
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            <div id="editProfileForm" class="hidden">
+                <h2 class="profile-title">Edit Profile</h2>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label class="form-label" for="nameInput">Display Name</label>
+                        <input type="text" id="nameInput" class="form-input" placeholder="Enter your name">
+                    </div>
+                    
+                    <div class="profile-actions">
+                        <button type="submit" class="action-button primary-action">
+                            <span class="material-icons-round">save</span>
+                            Save Changes
+                        </button>
+                        <button type="button" id="cancelEditBtn" class="action-button secondary-action">
+                            <span class="material-icons-round">cancel</span>
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="changePasswordForm" class="hidden">
+                <h2 class="profile-title">Change Password</h2>
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label class="form-label" for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" class="form-input" placeholder="Enter your current password" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" class="form-input" placeholder="Enter new password" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="confirmPassword">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm new password" required>
+                    </div>
+                    
+                    <div class="profile-actions">
+                        <button type="submit" class="action-button primary-action">
+                            <span class="material-icons-round">lock_reset</span>
+                            Update Password
+                        </button>
+                        <button type="button" id="cancelPasswordBtn" class="action-button secondary-action">
+                            <span class="material-icons-round">cancel</span>
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDl4a05369lB7N_yWaHzWGjuYy7ht2ja-g",
+            authDomain: "wmss-cfdfd.firebaseapp.com",
+            projectId: "wmss-cfdfd",
+            storageBucket: "wmss-cfdfd.firebasestorage.app",
+            messagingSenderId: "464847169973",
+            appId: "1:464847169973:web:78263220d8661b8f8111fc",
+            measurementId: "G-6W41LQS4KD"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Mobile menu toggle
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        // DOM Elements
+        const profileView = document.getElementById('profileView');
+        const editProfileForm = document.getElementById('editProfileForm');
+        const changePasswordForm = document.getElementById('changePasswordForm');
+        
+        const avatar = document.getElementById('avatar');
+        const displayNameElement = document.getElementById('displayName');
+        const emailElement = document.getElementById('email');
+        const memberSinceElement = document.getElementById('memberSince');
+        const reportsCountElement = document.getElementById('reportsCount');
+        const resolvedCountElement = document.getElementById('resolvedCount');
+        
+        const nameInput = document.getElementById('nameInput');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // View toggling
+        document.getElementById('editProfileBtn').addEventListener('click', () => {
+            profileView.classList.add('hidden');
+            editProfileForm.classList.remove('hidden');
+            changePasswordForm.classList.add('hidden');
+            nameInput.value = displayNameElement.textContent !== 'Loading...' ? displayNameElement.textContent : '';
+        });
+
+        document.getElementById('cancelEditBtn').addEventListener('click', () => {
+            profileView.classList.remove('hidden');
+            editProfileForm.classList.add('hidden');
+            resetMessages();
+        });
+
+        document.getElementById('changePasswordBtn').addEventListener('click', () => {
+            profileView.classList.add('hidden');
+            changePasswordForm.classList.remove('hidden');
+            editProfileForm.classList.add('hidden');
+            document.getElementById('passwordForm').reset();
+        });
+
+        document.getElementById('cancelPasswordBtn').addEventListener('click', () => {
+            profileView.classList.remove('hidden');
+            changePasswordForm.classList.add('hidden');
+            resetMessages();
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            auth.signOut().then(() => {
+                window.location.href = 'login.html';
+            });
+        });
+
+        // Check authentication state
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // User is signed in
+                emailElement.textContent = user.email;
+                
+                // Set avatar with initials
+                const initials = user.displayName 
+                    ? user.displayName.split(' ').map(n => n[0]).join('')
+                    : user.email.substring(0, 2).toUpperCase();
+                avatar.textContent = initials;
+                
+                // Set display name
+                displayNameElement.textContent = user.displayName || 'EcoTrack User';
+                
+                // Set member since date
+                const creationDate = new Date(user.metadata.creationTime);
+                memberSinceElement.textContent = `Member since ${creationDate.toLocaleDateString()}`;
+                
+                // Load user stats
+                loadUserStats(user.uid);
+            } else {
+                // User is not signed in, redirect to login
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Load user stats
+        async function loadUserStats(userId) {
+            try {
+                const reportsSnapshot = await db.collection('waste-reports')
+                    .where('userId', '==', userId)
+                    .get();
+                
+                reportsCountElement.textContent = reportsSnapshot.size;
+                
+                let resolvedCount = 0;
+                reportsSnapshot.forEach(doc => {
+                    const report = doc.data();
+                    if (report.status === 'Resolved') {
+                        resolvedCount++;
+                    }
+                });
+                
+                resolvedCountElement.textContent = resolvedCount;
+            } catch (error) {
+                console.error('Error loading user stats:', error);
+                showError('Error loading profile statistics');
+            }
+        }
+
+        // Update profile
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            resetMessages();
+            
+            const user = auth.currentUser;
+            const newName = nameInput.value.trim();
+            
+            if (!user) {
+                showError('User not authenticated');
+                return;
+            }
+            
+            try {
+                // Update display name
+                await user.updateProfile({
+                    displayName: newName
+                });
+                
+                // Update UI
+                displayNameElement.textContent = newName || 'EcoTrack User';
+                const initials = newName 
+                    ? newName.split(' ').map(n => n[0]).join('').toUpperCase()
+                    : user.email.substring(0, 2).toUpperCase();
+                avatar.textContent = initials;
+                
+                // Show success and return to profile view
+                showSuccess('Profile updated successfully');
+                setTimeout(() => {
+                    profileView.classList.remove('hidden');
+                    editProfileForm.classList.add('hidden');
+                }, 1500);
+                
+            } catch (error) {
+                showError('Error updating profile: ' + error.message);
+            }
+        });
+
+        // Change password
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            resetMessages();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const user = auth.currentUser;
+            
+            // Validation
+            if (newPassword !== confirmPassword) {
+                showError('New passwords do not match');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showError('New password must be at least 6 characters');
+                return;
+            }
+            
+            try {
+                // Reauthenticate user
+                const credential = firebase.auth.EmailAuthProvider.credential(
+                    user.email,
+                    currentPassword
+                );
+                
+                await user.reauthenticateWithCredential(credential);
+                
+                // Update password
+                await user.updatePassword(newPassword);
+                
+                // Show success and return to profile view
+                showSuccess('Password updated successfully');
+                document.getElementById('passwordForm').reset();
+                setTimeout(() => {
+                    profileView.classList.remove('hidden');
+                    changePasswordForm.classList.add('hidden');
+                }, 1500);
+                
+            } catch (error) {
+                let errorMsg = 'Error updating password';
+                if (error.code === 'auth/wrong-password') {
+                    errorMsg = 'Incorrect current password';
+                }
+                showError(errorMsg);
+            }
+        });
+
+        // Helper functions
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+        }
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+        
+        function resetMessages() {
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+        }
+    </script>
+    
+    <!-- Particles.js -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS("particles-js", {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: "#00dc82" },
+                shape: { type: "circle" },
+                opacity: {
+                    value: 0.5,
+                    random: true,
+                    animation: { enable: true, speed: 1, opacity_min: 0.1, sync: false }
+                },
+                size: {
+                    value: 3,
+                    random: true,
+                    animation: { enable: true, speed: 2, size_min: 0.1, sync: false }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#0ea5e9",
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "grab" },
+                    resize: true
+                },
+                modes: {
+                    grab: { distance: 140, line_linked: { opacity: 1 } }
+                }
+            },
+            retina_detect: true
+        });
+    </script>
+</body>
+</html>

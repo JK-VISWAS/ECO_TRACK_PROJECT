@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoTrack - Smart Waste Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #00dc82;
+            --secondary-color: #0ea5e9;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-light: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #7c3aed;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 220, 130, 0.2);
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 6rem 2rem 2rem;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(0, 220, 130, 0.15) 0%, transparent 40%);
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-text {
+            max-width: 600px;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .feature-icon span {
+            color: var(--text-primary);
+            font-size: 24px;
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .hero-image {
+            position: relative;
+        }
+
+        .hero-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-toggle {
+            display: none; /* Hide by default on desktop */
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text {
+                margin: 0 auto;
+            }
+
+            .features {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .stats {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: var(--surface);
+                flex-direction: column;
+                align-items: center;
+                padding: 1rem 0;
+                gap: 1rem;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                z-index: 999;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .menu-toggle {
+                display: block; /* Only show on mobile */
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Particle container styles */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nav, .hero {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <nav class="nav">
+        <div class="nav-content">
+            <div class="logo">
+                <span class="material-icons-round">eco</span>
+                EcoTrack
+            </div>
+            <button class="menu-toggle">
+                <span class="material-icons-round">menu</span>
+            </button>
+            <div class="nav-links">
+                <a href="INFO.HTML" class="nav-link">Info</a>
+                <a href="regards.html" class="nav-link">Regards</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="dashboard.html" class="nav-link" id="dashboardLink">Dashboard</a>
+                <a href="profile.html" class="nav-link" id="profileLink">Profile</a>
+                <a href="login.html" class="nav-link" id="loginButton">Login</a>
+                <a href="form.html" class="cta-button" id="reportButton">Report</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">Smart Waste Management for a Cleaner Future</h1>
+                <p class="hero-subtitle">Join our mission to create sustainable communities through efficient waste management and real-time reporting.</p>
+                <a href="#" class="cta-button" id="getStartedButton">Get Started →</a>
+
+             <!--   <div class="stats">
+                    <div class="stat">
+                        <div class="stat-number">150+</div>
+                        <div class="stat-label">Active Reports</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">80%</div>
+                        <div class="stat-label">Issue Resolution</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">24h</div>
+                        <div class="stat-label">Avg. Response</div>
+                    </div>
+                </div> -->
+
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <span class="material-icons-round">report_problem</span>
+                        </div>
+                        <h3 class="feature-title">Easy Reporting</h3>
+                        <p class="feature-description">Report waste management issues in your area with just a few clicks.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <span class="material-icons-round">track_changes</span>
+                        </div>
+                        <h3 class="feature-title">Real-time Tracking</h3>
+                        <p class="feature-description">Monitor the status of your reports and track resolution progress.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <span class="material-icons-round">analytics</span>
+                        </div>
+                        <h3 class="feature-title">Impact Analytics</h3>
+                        <p class="feature-description">View the impact of community efforts in maintaining cleanliness.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image floating">
+                <img src="https://img.freepik.com/free-vector/garbage-sorting-concept-illustration_114360-9697.jpg" alt="Waste Management Illustration">
+            </div>
+        </div>
+    </section>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    
+    <!-- Particles.js -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Particles configuration
+        particlesJS("particles-js", {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: "#00dc82" },
+                shape: { type: "circle" },
+                opacity: {
+                    value: 0.5,
+                    random: true,
+                    animation: { enable: true, speed: 1, opacity_min: 0.1, sync: false }
+                },
+                size: {
+                    value: 3,
+                    random: true,
+                    animation: { enable: true, speed: 2, size_min: 0.1, sync: false }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#0ea5e9",
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "grab" },
+                    resize: true
+                },
+                modes: {
+                    grab: { distance: 140, line_linked: { opacity: 1 } }
+                }
+            },
+            retina_detect: true
+        });
+
+        // Existing Firebase configuration and other scripts
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDl4a05369lB7N_yWaHzWGjuYy7ht2ja-g",
+            authDomain: "wmss-cfdfd.firebaseapp.com",
+            projectId: "wmss-cfdfd",
+            storageBucket: "wmss-cfdfd.firebasestorage.app",
+            messagingSenderId: "464847169973",
+            appId: "1:464847169973:web:78263220d8661b8f8111fc",
+            measurementId: "G-6W41LQS4KD"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Mobile menu toggle
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+            // Close menu when a link is clicked
+            document.querySelectorAll('.nav-links .nav-link, .nav-links .cta-button').forEach(link => {
+                link.addEventListener('click', () => {
+                    document.querySelector('.nav-links').classList.remove('active');
+                });
+            });
+        });
+
+        // Auth state observer
+        firebase.auth().onAuthStateChanged((user) => {
+            const loginButton = document.getElementById('loginButton');
+            const dashboardLink = document.getElementById('dashboardLink');
+            const profileLink = document.getElementById('profileLink');
+            const reportButton = document.getElementById('reportButton');
+            const getStartedButton = document.getElementById('getStartedButton');
+
+            if (user) {
+                // User is signed in
+                loginButton.textContent = 'Logout';
+                loginButton.href = '#';
+                loginButton.onclick = () => {
+                    firebase.auth().signOut();
+                    return false;
+                };
+                dashboardLink.style.display = 'inline-block';
+                profileLink.style.display = 'inline-block';
+                reportButton.style.display = 'inline-block';
+                getStartedButton.href = 'form.html';
+            } else {
+                // User is signed out
+                loginButton.textContent = 'Login';
+                loginButton.href = 'login.html';
+                loginButton.onclick = null;
+                dashboardLink.style.display = 'none';
+                profileLink.style.display = 'none';
+                reportButton.style.display = 'none';
+                getStartedButton.href = 'login.html';
+            }
+        });
+
+        // Handle Get Started button click
+        document.getElementById('getStartedButton').addEventListener('click', (e) => {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                e.preventDefault();
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>

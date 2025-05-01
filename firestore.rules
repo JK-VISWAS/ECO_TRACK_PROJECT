@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /waste-reports/{reportId} {
+      // Allow anyone to read reports
+      allow read;
+
+      // Allow authenticated users to create new reports
+      allow create: if request.auth != null;
+
+      // Allow updates with proper permissions
+      allow update: if request.auth != null && 
+        (
+          // If admin, allow any update
+          request.auth.token.email == "admin@gmail.com" ||
+          
+          // If user owns the document, allow update but not status changes
+          (
+            resource.data.userId == request.auth.uid &&
+            !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'adminNotes'])
+          )
+        );
+
+      // Allow only admin to delete
+      allow delete: if request.auth != null && 
+                   request.auth.token.email == "admin@gmail.com";
+    }
+  }
+}
