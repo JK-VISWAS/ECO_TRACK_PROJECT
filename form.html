@@ -393,7 +393,8 @@
         // Check authentication state
         firebase.auth().onAuthStateChanged((user) => {
             if (!user) {
-                // Redirect to login if not authenticated
+                // Store current URL before redirecting
+                sessionStorage.setItem('redirectUrl', window.location.href);
                 window.location.href = 'login.html';
             }
         });
@@ -477,6 +478,46 @@
             }
         }
 
+        // Image compression function
+        async function compressImage(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        // Max dimension
+                        const MAX_SIZE = 1200;
+                        if (width > height && width > MAX_SIZE) {
+                            height *= MAX_SIZE / width;
+                            width = MAX_SIZE;
+                        } else if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height;
+                            height = MAX_SIZE;
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Convert to blob
+                        canvas.toBlob((blob) => {
+                            resolve(new File([blob], file.name, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            }));
+                        }, 'image/jpeg', 0.7); // 70% quality
+                    };
+                };
+            });
+        }
+
         // Show selected image name
         document.getElementById('image').addEventListener('change', function(e) {
             const fileName = e.target.files[0]?.name;
@@ -488,9 +529,17 @@
         // Handle form submission with improved error handling
         document.getElementById('reportForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
             const submitButton = document.querySelector('.submit-button');
+            const form = this;
             
             try {
+                // Validate form
+                if (!form.checkValidity()) {
+                    showNotification('Please fill in all required fields', 'error');
+                    return;
+                }
+
                 // Disable button and show loading state
                 submitButton.disabled = true;
                 submitButton.innerHTML = '<span class="material-icons spinning">hourglass_empty</span> Submitting...';
@@ -498,52 +547,75 @@
                 // Authentication check
                 const user = firebase.auth().currentUser;
                 if (!user) {
-                    throw new Error('User not authenticated');
+                    sessionStorage.setItem('redirectUrl', window.location.href);
+                    window.location.href = 'login.html';
+                    return;
                 }
 
                 // Form data collection
-                const street = document.getElementById('street').value;
-                const city = document.getElementById('city').value;
-                const description = document.getElementById('description').value;
+                const street = document.getElementById('street').value.trim();
+                const city = document.getElementById('city').value.trim();
+                const description = document.getElementById('description').value.trim();
                 const issueType = document.getElementById('issueType').value;
-                const contact = document.getElementById('contact').value;
+                const contact = document.getElementById('contact').value.trim();
                 const imageFile = document.getElementById('image').files[0];
 
-                // Image handling
+                // Image handling with compression
                 let imageUrl = null;
                 if (imageFile) {
                     try {
+                        showNotification('Processing image...', 'info');
+                        const compressedImage = await compressImage(imageFile);
                         showNotification('Uploading image...', 'info');
-                        imageUrl = await uploadToGoFiles(imageFile);
+                        imageUrl = await uploadToGoFiles(compressedImage);
                     } catch (error) {
+                        console.error('Image processing error:', error);
                         showNotification('Image upload failed: ' + error.message, 'error');
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = '<span class="material-icons">send</span> Submit Report';
                         return;
                     }
                 }
 
-                // Save report to Firestore
-                await db.collection('reports').add({
-                    userId: user.uid,
-                    street,
-                    city,
-                    description,
-                    issueType,
-                    contact,
-                    imageUrl,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                // Show success notification
-                showNotification('Report submitted successfully!', 'success');
-
-                // Reset form
-                document.getElementById('reportForm').reset();
-                document.querySelector('.file-upload-label').textContent = 'Upload Image';
+                // Save report to Firestore with retry logic
+                let retries = 3;
+                while (retries > 0) {
+                    try {
+                        await db.collection('reports').add({
+                            userId: user.uid,
+                            street,
+                            city,
+                            description,
+                            issueType,
+                            contact,
+                            imageUrl,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                            status: 'Pending'
+                        });
+                        
+                        // Show success and reset form
+                        showNotification('Report submitted successfully!', 'success');
+                        form.reset();
+                        document.querySelector('.file-upload-label').textContent = 'Upload Image';
+                        
+                        // Redirect to dashboard after short delay
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 2000);
+                        
+                        return;
+                    } catch (error) {
+                        retries--;
+                        if (retries === 0) {
+                            throw error;
+                        }
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
+                    }
+                }
             } catch (error) {
                 console.error('Error submitting report:', error);
                 showNotification('Failed to submit report: ' + error.message, 'error');
             } finally {
-                // Re-enable button and reset text
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<span class="material-icons">send</span> Submit Report';
             }
