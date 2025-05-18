@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impact Analysis - EcoTrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    <style>
+        :root {
+            --primary-color: #00dc82;
+            --secondary-color: #0ea5e9;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-light: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #7c3aed;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-top: 80px;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-icon span {
+            color: var(--text-primary);
+            font-size: 24px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 1rem;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: var(--surface-light);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        #heatmap {
+            height: 400px;
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="index.html" class="logo">
+                <span class="material-icons-round">eco</span>
+                EcoTrack
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <span class="material-icons-round">recycling</span>
+                    </div>
+                    <h2 class="card-title">Waste Reduction Impact</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="wasteReductionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <span class="material-icons-round">co2</span>
+                    </div>
+                    <h2 class="card-title">Carbon Footprint Reduction</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="carbonFootprintChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <span class="material-icons-round">pie_chart</span>
+                    </div>
+                    <h2 class="card-title">Waste Category Breakdown</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="wasteCategoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <span class="material-icons-round">analytics</span>
+                </div>
+                <h2 class="card-title">Community Impact Statistics</h2>
+            </div>
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalWasteReduced">0</div>
+                    <div class="stat-label">Total Waste Reduced (tons)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="carbonSaved">0</div>
+                    <div class="stat-label">Carbon Emissions Saved (tons)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="treesEquivalent">0</div>
+                    <div class="stat-label">Trees Equivalent Saved</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="communityParticipation">0</div>
+                    <div class="stat-label">Community Participation</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <span class="material-icons-round">map</span>
+                </div>
+                <h2 class="card-title">Waste Management Hotspots</h2>
+            </div>
+            <div id="heatmap"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDl4a05369lB7N_yWaHzWGjuYy7ht2ja-g",
+            authDomain: "wmss-cfdfd.firebaseapp.com",
+            projectId: "wmss-cfdfd",
+            databaseURL: "https://wmss-cfdfd-default-rtdb.firebaseio.com",
+            storageBucket: "wmss-cfdfd.firebasestorage.app",
+            messagingSenderId: "464847169973",
+            appId: "1:464847169973:web:78263220d8661b8f8111fc",
+            measurementId: "G-6W41LQS4KD"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Initialize Charts
+        const wasteReductionChart = new Chart(
+            document.getElementById('wasteReductionChart'),
+            {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Waste Reduction (tons)',
+                        data: [],
+                        borderColor: '#00dc82',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+        const carbonFootprintChart = new Chart(
+            document.getElementById('carbonFootprintChart'),
+            {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Carbon Footprint Reduction (tons)',
+                        data: [],
+                        borderColor: '#0ea5e9',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+        // Initialize Waste Category Chart
+        const wasteCategoryChart = new Chart(
+            document.getElementById('wasteCategoryChart'),
+            {
+                type: 'doughnut',
+                data: {
+                    labels: ['Plastic', 'Paper', 'Metal', 'Glass', 'Organic', 'Others'],
+                    datasets: [{
+                        data: [30, 25, 15, 10, 15, 5],
+                        backgroundColor: [
+                            '#00dc82',
+                            '#0ea5e9',
+                            '#7c3aed',
+                            '#f59e0b',
+                            '#10b981',
+                            '#6b7280'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+        // Initialize heatmap
+        const map = L.map('heatmap').setView([13.0827, 80.2707], 12); // Chennai coordinates
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        function updateHeatmap(data) {
+            // Remove existing heatmap layer if it exists
+            if (window.heatmapLayer) {
+                map.removeLayer(window.heatmapLayer);
+            }
+
+            // Create new heatmap layer
+            window.heatmapLayer = L.heatLayer(data, {
+                radius: 25,
+                blur: 15,
+                maxZoom: 10,
+                gradient: {
+                    0.4: '#00dc82',
+                    0.6: '#0ea5e9',
+                    0.8: '#7c3aed',
+                    1.0: '#ef4444'
+                }
+            }).addTo(map);
+        }
+
+        // Update charts and stats with real-time data
+        function updateImpactData() {
+            const impactRef = database.ref('impact');
+            
+            impactRef.on('value', (snapshot) => {
+                const data = snapshot.val() || {
+                    wasteReduction: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                        data: [10, 15, 20, 25, 30]
+                    },
+                    carbonFootprint: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                        data: [5, 8, 12, 15, 18]
+                    },
+                    wasteCategories: {
+                        labels: ['Plastic', 'Paper', 'Metal', 'Glass', 'Organic', 'Others'],
+                        data: [30, 25, 15, 10, 15, 5]
+                    },
+                    stats: {
+                        totalWasteReduced: 100,
+                        carbonSaved: 50,
+                        treesEquivalent: 250,
+                        communityParticipation: 500
+                    },
+                    heatmapData: [
+                        [13.0827, 80.2707, 0.8], // Chennai Central
+                        [13.0569, 80.2425, 0.6], // T Nagar
+                        [13.1067, 80.2936, 0.7], // Royapuram
+                        [13.0098, 80.2318, 0.5]  // Guindy
+                    ]
+                };
+
+                // Update waste reduction chart
+                wasteReductionChart.data.labels = data.wasteReduction.labels;
+                wasteReductionChart.data.datasets[0].data = data.wasteReduction.data;
+                wasteReductionChart.update();
+
+                // Update carbon footprint chart
+                carbonFootprintChart.data.labels = data.carbonFootprint.labels;
+                carbonFootprintChart.data.datasets[0].data = data.carbonFootprint.data;
+                carbonFootprintChart.update();
+
+                // Update waste category chart
+                wasteCategoryChart.data.labels = data.wasteCategories.labels;
+                wasteCategoryChart.data.datasets[0].data = data.wasteCategories.data;
+                wasteCategoryChart.update();
+
+                // Update statistics
+                document.getElementById('totalWasteReduced').textContent = data.stats.totalWasteReduced;
+                document.getElementById('carbonSaved').textContent = data.stats.carbonSaved;
+                document.getElementById('treesEquivalent').textContent = data.stats.treesEquivalent;
+                document.getElementById('communityParticipation').textContent = data.stats.communityParticipation;
+
+                // Update heatmap
+                updateHeatmap(data.heatmapData);
+            });
+        }
+
+        // Initialize the impact data when the page loads
+        document.addEventListener('DOMContentLoaded', updateImpactData);
+
+        // Auth state observer
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>

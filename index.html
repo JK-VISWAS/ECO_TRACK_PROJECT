@@ -331,20 +331,20 @@
                 <p class="hero-subtitle">Join our mission to create sustainable communities through efficient waste management and real-time reporting.</p>
                 <a href="#" class="cta-button" id="getStartedButton">Get Started →</a>
 
-             <!--   <div class="stats">
+                <div class="stats">
                     <div class="stat">
-                        <div class="stat-number">150+</div>
+                        <div class="stat-number" id="activeReports">150+</div>
                         <div class="stat-label">Active Reports</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-number">80%</div>
+                        <div class="stat-number" id="resolutionRate">80%</div>
                         <div class="stat-label">Issue Resolution</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-number">24h</div>
+                        <div class="stat-number" id="avgResponse">24h</div>
                         <div class="stat-label">Avg. Response</div>
                     </div>
-                </div> -->
+                </div>
 
                 <div class="features">
                     <div class="feature-card">
@@ -379,6 +379,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     
     <!-- Particles.js -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
@@ -435,6 +436,7 @@
             apiKey: "AIzaSyDl4a05369lB7N_yWaHzWGjuYy7ht2ja-g",
             authDomain: "wmss-cfdfd.firebaseapp.com",
             projectId: "wmss-cfdfd",
+            databaseURL: "https://wmss-cfdfd-default-rtdb.firebaseio.com",
             storageBucket: "wmss-cfdfd.firebasestorage.app",
             messagingSenderId: "464847169973",
             appId: "1:464847169973:web:78263220d8661b8f8111fc",
@@ -443,6 +445,27 @@
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Real-time stats update
+        function updateStats() {
+            const statsRef = database.ref('stats');
+            
+            statsRef.on('value', (snapshot) => {
+                const stats = snapshot.val() || {
+                    activeReports: 0,
+                    resolutionRate: 0,
+                    avgResponse: 0
+                };
+
+                document.getElementById('activeReports').textContent = stats.activeReports + '+';
+                document.getElementById('resolutionRate').textContent = stats.resolutionRate + '%';
+                document.getElementById('avgResponse').textContent = stats.avgResponse + 'h';
+            });
+        }
+
+        // Call updateStats when the page loads
+        document.addEventListener('DOMContentLoaded', updateStats);
 
         // Mobile menu toggle
         document.querySelector('.menu-toggle').addEventListener('click', function() {

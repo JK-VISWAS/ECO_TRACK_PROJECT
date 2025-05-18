@@ -544,6 +544,134 @@
             }
         }
 
+        /* Improved mobile styles */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1rem;
+                margin-top: 80px;
+            }
+
+            .reports-table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .detail-content {
+                grid-template-columns: 1fr;
+            }
+
+            .report-image {
+                width: 100%;
+                max-width: 100%;
+                height: 200px;
+                object-fit: cover;
+                background-color: var(--surface);
+                margin: 0.5rem 0;
+                cursor: pointer;
+                transition: transform 0.3s ease;
+            }
+
+            .report-image:active {
+                transform: scale(0.98);
+            }
+
+            /* Image viewer modal improvements */
+            .image-viewer-modal {
+                background: rgba(0, 0, 0, 0.9);
+                padding: 10px;
+            }
+
+            .image-viewer-content {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+            }
+
+            #fullSizeImage {
+                width: 100%;
+                height: auto;
+                max-height: 80vh;
+                object-fit: contain;
+                border-radius: 8px;
+            }
+
+            .image-controls {
+                position: fixed;
+                bottom: 20px;
+                left: 0;
+                right: 0;
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+                padding: 1rem;
+                background: rgba(15, 23, 42, 0.8);
+                backdrop-filter: blur(10px);
+                border-radius: 12px;
+                margin: 0 1rem;
+            }
+
+            .image-control-btn {
+                background: var(--surface);
+                border: none;
+                color: var(--text-primary);
+                padding: 0.5rem 1rem;
+                border-radius: 6px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .image-control-btn:active {
+                transform: scale(0.95);
+            }
+
+            /* Improved status badges for mobile */
+            .status-badge {
+                width: 100%;
+                text-align: center;
+                margin: 0.25rem 0;
+            }
+
+            /* Better spacing for mobile forms */
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+
+            .form-input,
+            .form-select,
+            .form-textarea {
+                padding: 1rem;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
+
+        /* Add smooth loading animation */
+        .image-loading {
+            position: relative;
+        }
+
+        .image-loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
         #particles-js {
             position: fixed;
             width: 100%;
@@ -691,6 +819,35 @@
         <div class="modal-content" style="max-width: 90%; background: transparent; box-shadow: none;">
             <button class="close-btn" id="closeImageViewer" style="position: absolute; right: 20px; top: 20px; color: white; font-size: 2rem;">&times;</button>
             <img id="fullSizeImage" style="max-width: 100%; max-height: 90vh; object-fit: contain; border-radius: 8px;" alt="Full size report image">
+        </div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div id="imageViewerModal" class="modal image-viewer-modal">
+        <div class="image-viewer-content">
+            <img id="fullSizeImage" src="" alt="Full size image">
+            <div class="image-controls">
+                <button class="image-control-btn" onclick="rotateImage(-90)">
+                    <span class="material-icons-round">rotate_left</span>
+                    Rotate Left
+                </button>
+                <button class="image-control-btn" onclick="zoomImage(1.2)">
+                    <span class="material-icons-round">zoom_in</span>
+                    Zoom In
+                </button>
+                <button class="image-control-btn" onclick="zoomImage(0.8)">
+                    <span class="material-icons-round">zoom_out</span>
+                    Zoom Out
+                </button>
+                <button class="image-control-btn" onclick="rotateImage(90)">
+                    <span class="material-icons-round">rotate_right</span>
+                    Rotate Right
+                </button>
+                <button class="image-control-btn" onclick="closeImageViewer()">
+                    <span class="material-icons-round">close</span>
+                    Close
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1264,6 +1421,82 @@
                 setTimeout(() => notification.remove(), 500);
             }, 3000);
         }
+
+        // Image viewer functionality
+        let currentRotation = 0;
+        let currentZoom = 1;
+        const imageViewer = document.getElementById('imageViewerModal');
+        const fullSizeImage = document.getElementById('fullSizeImage');
+
+        function openImageViewer(imageSrc) {
+            imageViewer.style.display = 'flex';
+            fullSizeImage.src = imageSrc;
+            currentRotation = 0;
+            currentZoom = 1;
+            updateImageTransform();
+            
+            // Enable pinch-zoom on mobile
+            fullSizeImage.style.touchAction = 'pinch-zoom';
+        }
+
+        function closeImageViewer() {
+            imageViewer.style.display = 'none';
+        }
+
+        function rotateImage(degrees) {
+            currentRotation = (currentRotation + degrees) % 360;
+            updateImageTransform();
+        }
+
+        function zoomImage(factor) {
+            currentZoom = Math.min(Math.max(currentZoom * factor, 0.5), 3);
+            updateImageTransform();
+        }
+
+        function updateImageTransform() {
+            fullSizeImage.style.transform = `rotate(${currentRotation}deg) scale(${currentZoom})`;
+        }
+
+        // Add touch gestures support
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let initialPinchDistance = 0;
+
+        fullSizeImage.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                initialPinchDistance = Math.hypot(
+                    e.touches[0].pageX - e.touches[1].pageX,
+                    e.touches[0].pageY - e.touches[1].pageY
+                );
+            }
+            touchStartX = e.touches[0].pageX;
+            touchStartY = e.touches[0].pageY;
+        });
+
+        fullSizeImage.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const currentDistance = Math.hypot(
+                    e.touches[0].pageX - e.touches[1].pageX,
+                    e.touches[0].pageY - e.touches[1].pageY
+                );
+                const pinchChange = currentDistance - initialPinchDistance;
+                if (Math.abs(pinchChange) > 10) {
+                    zoomImage(pinchChange > 0 ? 1.02 : 0.98);
+                    initialPinchDistance = currentDistance;
+                }
+            }
+        });
+
+        // Update image loading
+        document.querySelectorAll('.report-image').forEach(img => {
+            img.addEventListener('click', () => openImageViewer(img.src));
+            img.addEventListener('load', () => img.classList.remove('image-loading'));
+            img.addEventListener('error', () => {
+                img.src = 'https://via.placeholder.com/300x200?text=Image+Not+Available';
+                img.classList.remove('image-loading');
+            });
+        });
     </script>
 
     <!-- Particles.js -->
